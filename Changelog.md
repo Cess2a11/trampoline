@@ -8,4 +8,7 @@
 
 - Improved documentation.
 
+## 0.1.2
+
+- Published on github.com.
 
