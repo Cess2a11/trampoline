@@ -1,0 +1,21 @@
+analyzer:
+  errors:
+    invalid_assignment: error
+    missing_return: error
+    dead_code: error
+    unused_local_variable: false
+    unused_import: false
+  strong-mode:
+    implicit-casts: false
+    implicit-dynamic: false
+linter:
+  rules:
+    - camel_case_types
+    - empty_constructor_bodies
+    - always_declare_return_types
+    - annotate_overrides
+    - avoid_init_to_null
+    - sort_constructors_first
+
+include: package:pedantic/analysis_options.yaml
+

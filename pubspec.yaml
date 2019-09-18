@@ -1,0 +1,13 @@
+name: "trampoline"
+version: "0.1.1"
+author: "Michael Bürgerling <michael.buergerling@gmail.com>"
+description: "A library for trampolining recursive calls by hand in cases when optimization isn't done automatically. This library is ported from Scala's standard library."
+homepage: "https://github.com/welopment/trampoline"
+environment:
+  sdk: '>=1.8.0 <3.0.0'
+
+dependencies:
+
+dev_dependencies:
+  test: ^1.6.3 
+  pedantic: ^1.0.0
