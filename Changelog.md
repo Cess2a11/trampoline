@@ -2,18 +2,18 @@
 
 ## 1.0.0
 
-- use of object-orientated programming style and getting rid of type casts.
+- rewritten in object-orientated style 
 
 ## 0.1.3
 
-- Transformation of recursion (from TailCalls.scala) into iteration.
+- replaced recursion with iteration
 
 ## 0.1.2
 
-- Published on github.com.
+- published on github.com
 
 
 ## 0.1.1
 
-- Improved documentation.
+- improved documentation
 

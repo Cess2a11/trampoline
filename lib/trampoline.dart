@@ -1,4 +1,3 @@
-
 abstract class TailRec<TailRecA> {
   TailRec<TailRecB1> map<TailRecB1>(TailRecB1 Function(TailRecA) f) =>
       flatMap((a) => _Call(() => _Done(f(a))));
@@ -110,7 +109,7 @@ int fib2(int n) {
 }
 
 void main() {
-   for (int i = 18; i < 47; i++) {
+  for (int i = 18; i < 47; i++) {
     print("Fibonacci für ${i} ist ${fib2(i)};");
   }
   print("Recursion ${rec(7).result};");
