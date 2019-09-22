@@ -1,147 +1,121 @@
-// Hier ist die Umwandlung von Tailcall-Recursion in Iteration bereits erfolgt
-// aber die Typisierung stimmt nicht.
 
-abstract class TailRec<A> {
-  A value;
+abstract class TailRec<TailRecA> {
+  TailRec<TailRecB1> map<TailRecB1>(TailRecB1 Function(TailRecA) f) =>
+      flatMap((a) => _Call(() => _Done(f(a))));
 
-  A result<B, C>() {
-    TailRec<A> tr = this;
-    while (!(tr is _Done<A>)) {
-      //
-      if (tr is _Bounce<A>) {
-        tr = (tr as _Bounce<A>).continuation(); // calling rest();Case 1
-        //
+  TailRec<TailRecB2> flatMap<TailRecB2>(
+      TailRec<TailRecB2> Function(TailRecA) f);
 
-      } else if (tr is Cont<B, A>) {
-        TailRec<B> a = (tr as Cont<B, A>).a;
-        TailRec<A> Function(B) f = (tr as Cont<B, A>).f;
-        if (a is _Done<B>) {
-          tr = f(a.value);
+  TailRec<TailRecA> get result2;
 
-          ///
-        } else if (a is _Bounce<B>) {
-          TailRec<A> Function(B) f1 = f;
-          tr = (a).continuation().flatMap<A>(f);
+  TailRec<TailRecB3> _result1<TailRecB3>(_Cont<TailRecA, TailRecB3> c);
 
-          ///
+  static TailRec<TailRecC> _result0<TailRecD, TailRecC>(
+          TailRec<TailRecD> b, _Cont<TailRecD, TailRecC> c) =>
+      b._result1(c);
 
-        } else if (a is Cont<B, A>) {
-          /// Version 1:
-          /**
-          TailRec<B> b = (a as Cont<B, A>).a;
-          TailRec<A> Function(B) g = (a as Cont<B, A>).f; // ok
-          tr = b.flatMap<A>((B x) =>
-              g(x).flatMap<A>(f)); // flatMap<C>(TailRec<C> Function(A) c.f)
-          */
-
-          ///
-          /// Version 2:
-          TailRec<B> b = (a as Cont<B, A>).a; // bereits definiert
-          TailRec<A> Function(B) f = (a as Cont<B, A>).f; // ok
-          TailRec<C> Function(A) g =
-              (a as Cont<A, C>).f; // g2 sollte anstelle f stehen
-          TailRec<C> tr2 = b.flatMap<C>((B x) =>
-              (f(x).flatMap<C>(g))); // flatMap<C>(TailRec<C> Function(A) c.f)
-          tr = tr2 as TailRec<A>;
-
-          ///   C _result1<C>(_Cont<A, C> c) =>
-          ///       b.flatMap<C>((B x) => TailRec<A> Function(B) f(x).flatMap<C>(TailRec<C> Function(A) c.f)).result;
-
-          /// TailRec<C>  flatMap<C>(TailRec<C> Function(A) g)
-          ///       =>   _Cont<B, C>(b, (B x) => f(x).flatMap<C>( g));
-
-        }
-      }
+  TailRecA get result {
+    TailRec<TailRecA> ts = this;
+    while (!(ts is _Done<TailRecA>)) {
+      ts = ts.result2;
     }
-    return tr.value;
+    return (ts as _Done<TailRecA>).value;
   }
-
-  TailRec<B> map<B>(B Function(A) f) {
-    return flatMap((a) => _Bounce(() => _Done<B>(f(a))));
-  }
-
-  TailRec<B> flatMap<B>(TailRec<B> Function(A) f);
 }
 
-class Cont<B, A> extends TailRec<A> {
-  Cont(this.a, this.f);
+class _Call<CallA> extends TailRec<CallA> {
+  _Call(this.rest);
 
-  TailRec<B> a;
-  TailRec<A> Function(B x) f;
+  final TailRec<CallA> Function() rest;
 
   @override
-  TailRec<C> flatMap<C>(TailRec<C> Function(A) f) =>
-      Cont<B, C>(this.a, (B x) => this.f(x).flatMap<C>(f));
+  TailRec<CallB1> flatMap<CallB1>(f) => _Cont<CallA, CallB1>(this, f);
+
+  @override
+  TailRec<CallA> get result2 => rest();
+
+  @override
+  TailRec<CallB2> _result1<CallB2>(c) => rest().flatMap<CallB2>(c.f);
 }
 
-// die Typisierung stimmt
-class _Done<A> extends TailRec<A> {
+class _Cont<ContB, ContA> extends TailRec<ContA> {
+  _Cont(this.b, this.f);
+
+  TailRec<ContB> b;
+
+  TailRec<ContA> Function(ContB) f;
+
+  @override
+  TailRec<ContC1> flatMap<ContC1>(g) =>
+      _Cont<ContB, ContC1>(b, (ContB x) => f(x).flatMap<ContC1>(g));
+
+  @override
+  TailRec<ContA> get result2 => TailRec._result0<ContB, ContA>(b, this);
+
+  @override
+  TailRec<ContC2> _result1<ContC2>(c) =>
+      b.flatMap<ContC2>((ContB x) => f(x).flatMap<ContC2>(c.f));
+}
+
+class _Done<DoneA> extends TailRec<DoneA> {
   _Done(this.value);
+  final DoneA value;
 
   @override
-  _Bounce<B> flatMap<B>(TailRec<B> Function(A) f) =>
-      _Bounce<B>(() => f(this.value));
+  _Call<DoneB1> flatMap<DoneB1>(f) => _Call<DoneB1>(() => f(value));
 
   @override
-  final A value;
+  TailRec<DoneA> get result2 => this;
+
+  @override
+  TailRec<DoneB2> _result1<DoneB2>(c) => c.f(value);
 }
 
-// die Typisierung stimmt
-class _Bounce<A> extends TailRec<A> {
-  _Bounce(this.continuation);
+TailRec<TCA> tailcall<TCA>(TailRec<TCA> Function() rest) => _Call<TCA>(rest);
 
-  TailRec<A> Function() continuation;
+TailRec<DNA> done<DNA>(DNA result) => _Done<DNA>(result);
 
-  @override
-  TailRec<B> flatMap<B>(TailRec<B> Function(A) f) => Cont<A, B>(this, f);
-}
+/* ------   TESTS   ------------------------------------------ */
 
-TailRec<A> done<A>(A x) => _Done<A>(x);
-
-TailRec<A> tailcall<A>(TailRec<A> continuation()) => _Bounce<A>(continuation);
-
-// -------------------------------------------------
-
-class Defs {
-  ///
-  static TailRec<bool> odd(int n) =>
-      n == 0 ? done(false) : tailcall(() => even(n - 1));
-  static TailRec<bool> even(int n) =>
-      n == 0 ? done(true) : tailcall(() => odd(n - 1));
-
-  ///
-  static bool badodd(int n) => n == 0 ? false : badeven(n - 1);
-  static bool badeven(int n) => n == 0 ? true : badodd(n - 1);
-
-  ///
-  static TailRec<int> fib(int n) {
-    if (n < 2) {
-      return done<int>(n);
+TailRec<int> rec(int desiredCount) {
+  TailRec<int> itar(int a, int b, int count) {
+    if (count == desiredCount) {
+      return done(a + b);
     } else {
-      return tailcall<int>(() => fib(n - 1)).flatMap<int>((x) {
-        return tailcall<int>(() => fib(n - 2)).map<int>((y) {
-          return (x + y);
-        });
-      });
+      return tailcall(() => itar(b, a + b, count + 1));
     }
+  }
+
+  return itar(0, 1, 0); // recursive call
+}
+
+TailRec<int> fib(int n) {
+  if (n < 2) {
+    return done(n);
+  } else {
+    return tailcall(() => fib(n - 1)).flatMap<int>((x) {
+      return tailcall(() => fib(n - 2)).map((y) {
+        return (x + y);
+      });
+    });
+  }
+}
+
+int fib2(int n) {
+  if (n < 2) {
+    return n;
+  } else {
+    return fib2(n - 1) + fib2(n - 2);
   }
 }
 
 void main() {
-  bool res1;
-  res1 = (Defs.even(101).result<int, int>());
-  print("Ergebnis von Odd/Even ist $res1");
-  for (int z = 20; z < 35; z++) {
-    num res2;
-    res2 = Defs.fib(z).result<int, int>();
-    print("Ergebnis von Fibonacci für $z ist $res2");
+   for (int i = 18; i < 47; i++) {
+    print("Fibonacci für ${i} ist ${fib2(i)};");
+  }
+  print("Recursion ${rec(7).result};");
+
+  for (int i = 18; i < 38; i++) {
+    print("Fibonacci für ${i} ist ${fib(i).result};");
   }
 }
-
-/*
-
-'Cont<List<Tupl<String, Termtype<String>>>, List<Tupl<String, Termtype<String>>>>' 
-'_Done<List<Tupl<String, Termtype<String>>>>'
-
-
- */

@@ -1,8 +1,7 @@
 trampoline
 ==========
 
-A library for trampolining recursive calls. Inspired by [TailCalls.scala](https://github.com/scala/scala/blob/v2.13.0/src/library/scala/util/control/TailCalls.scala).
-
+A library for trampolining recursive calls. 
 
 # Example 1:
 
@@ -47,5 +46,3 @@ void main() {
 
 ```
 
-[Read more](https://en.wikipedia.org/wiki/Trampoline_(computing))
-about trampoling in computing on Wikipedia.

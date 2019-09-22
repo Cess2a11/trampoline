@@ -21,11 +21,11 @@ TailRec<bool> even(int n) => n == 0 ? done(true) : tailcall(() => odd(n - 1));
 
 void main() {
   bool res1;
-  res1 = (even(101).result<int, int>());
+  res1 = even(101).result;
   print("Ergebnis von Odd/Even ist $res1");
   for (int z = 20; z < 35; z++) {
     num res2;
-    res2 = Defs.fib(z).result<int, int>();
+    res2 = fib(z).result;
     print("Ergebnis von Fibonacci für $z ist $res2");
   }
 }
